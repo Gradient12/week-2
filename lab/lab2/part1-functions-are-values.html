@@ -31,6 +31,7 @@
       // Here's the variable we need to hold our count in:
       var exampleSum = 0; // To count of the strings
 
+/*
       // A loop for summing the contents of theArray
       for (var i = 0; i < theArray.length; i++) {
         var arrayValue = theArray[i];
@@ -42,7 +43,7 @@
           console.log("Not sure how to proceed with value:", arrayValue)
         }
       }
-
+*/
       /* =====================
 
       Start code
@@ -53,14 +54,28 @@
       var yourSum = 0;
 
       // Refactor the work above into a few different functions that are reusable to the extent that you can
-      for (var i = 0; i < theArray.length, i++) { /* Do stuff here */ }
+      var testAndAdd = function(x){
+        if  (typeof x === 'string'){
+          yourSum  += x.length;
+        }
+        else if (typeof x === 'number') {
+          yourSum += x;
+        }
+      }
+
+      for (var i = 0; i < theArray.length; i++) {
+        var arrayValue = theArray[i];
+        testAndAdd(arrayValue);
+        console.log(yourSum);
+      }
 
       /* =====================
 
       End code
 
       ===================== */
-      console.log("Success: ", yourSum === 169)
+
+      console.log("Success: ", yourSum === 169);
     </script>
   </body>
 </html>

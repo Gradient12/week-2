@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+      <!--stylesheet imports-->
+      <link rel="stylesheet" href="leaflet.css" />
+  </head>
+  <body>
+    <!--left panel-->
+    <div style="position: absolute; left: 0px; width: 400px; top: 0; bottom: 0;"></div>
+    <!--map-->
+    <div id="map" style="position: absolute; right: 0; left: 400px; top: 0; bottom: 0;"></div>
+
+    <!--javascript imports-->
+    <script src="leaflet.js"></script>
+    <script src="health_centers_csv.js"></script>
+
+    <!--javascript-->
+    <script>
+      // Use an array of HealthCenter objects to organize the data.
+
+      // Function and object definitions
+
+      var HealthCenter = function(dataString){
+        var d = dataString.split(",");
+        this.LNG = d[0];
+        this.LAT = d[1];
+        this.OBJECTID = d[2];
+        this.NAME= d[3];
+        this.ORGANIZATION = d[4];
+        this.ZIP = d[5];
+        this.PHONE = d[6];
+        this.WEBSITE = d[7];
+        this.DENTAL_PHONE = d[8];
+        this.FULL_ADDRESS = d[9];
+      }
+
+      var SelectHealthCenterByZipCodeRange = function(healthCenters,zipMin,zipMax){
+        var newData = [];
+        for(var i =0;i<data.length;i++){
+          var hc = healthCenters[i];
+          var zip = parseInt(hc.ZIP);
+          if(zip>=zipMin&&zip<=zipMax){
+            newData.push(hc);
+          }
+        }
+        return newData;
+      }
+
+      var CreateLeafletObjects = function(){
+        var map = L.map('map', {
+          center: [39.9522, -75.1639],
+          zoom: 14
+        });
+        var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+          attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+          subdomains: 'abcd',
+          minZoom: 0,
+          maxZoom: 20,
+          ext: 'png'
+        }).addTo(map);
+        return map;
+      }
+
+      var PlaceHealthCentersOnMap = function(map,healthCenters){
+        for(i in healthCenters){
+          var hc = healthCenters[i];
+          var marker = L.marker(new L.LatLng(hc.LAT,hc.LNG), {
+                draggable: true
+            });
+          marker.bindPopup(hc.NAME+" "+hc.WEBSITE+" Phone:"+hc.PHONE).addTo(map);
+        }
+      }
+
+      var PrintKeys = function(keys){
+        console.log(keys);
+      }
+
+      var PrintAllHealthCenters = function(keys,healthCenters){
+        var keyArray = keys.split(",");
+        for(var i =0;i<healthCenters.length;i++){
+          var hc = healthCenters[i];
+          PrintSingleHealthCenter(keyArray,hc);
+        }
+      }
+
+      var PrintSingleHealthCenter = function(keyArray,hc){
+        var s = "";
+        for(var j =0;j<keyArray.length;j++){
+          s+=hc[keyArray[j]]+",";
+        }
+        console.log(s);
+      }
+
+
+
+      // build the data array
+      var dataSplit1 =  healthCentersCSV.split(";");
+      var data = [];
+      for(var i =1;i<dataSplit1.length;i++){
+        var s = dataSplit1[i];
+        data.push(new HealthCenter(s));
+      }
+
+      // filter the data by zipcode
+      var zipFiltered = SelectHealthCenterByZipCodeRange(data,19140 ,19149 );
+
+
+      // show markers on the map
+      var map = CreateLeafletObjects();
+      PlaceHealthCentersOnMap(map,zipFiltered);
+
+      // print keys and data
+      var keys = dataSplit1[0];
+      PrintKeys(keys);
+      PrintAllHealthCenters(keys,zipFiltered);
+
+    </script>
+  </body>
+</html>

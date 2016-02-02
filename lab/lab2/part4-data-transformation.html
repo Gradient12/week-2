@@ -5,7 +5,6 @@
     <link rel="stylesheet" href="leaflet.css" />
   </head>
   <body>
-
     <!--left panel-->
     <div style="position: absolute; left: 0px; width: 400px; top: 0; bottom: 0;"></div>
     <!--map-->
@@ -54,79 +53,78 @@
 
     /* =====================
 
-    Start code to filter data
+    reorganize
+    - A function to filter values
+    - A function to clean data
+    - A function to create leaflet objects from 'clean' data
+    - A function to place those objects on the map
 
     ===================== */
+
+    // Keep bike share stations with more than 20 docks
+    var FilterData = function(data){
+      var filtered = [];
+      var n = data.length;
+      for(var i=0;i<n;i++){
+        var b = data[i];
+        if (b[3]>20){
+          filtered.push(b);
+        }
+      }
+      return filtered;
+    }
+
+    // Remove data that cannot be parsed to a float
+    // If the remaining bike has four data or more, keep it
+    var CleanData = function(data){
+      var cleaned = [];
+      var n = data.length;
+      for(var i=0;i<n;i++){
+        var b = data[i];
+        var bClean = [];
+        for(j in b){
+          var item = parseFloat(b[j]);
+          if(item!=NaN){
+            bClean.push(item);
+          }
+        }
+        if(bClean.length>3){
+            cleaned.push(bClean);
+        }
+      }
+      return cleaned;
+    }
+
+    var CreateLeafletObjects = function(){
+      var map = L.map('map', {
+        center: [39.9522, -75.1639],
+        zoom: 14
+      });
+
+      var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
+        attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+        subdomains: 'abcd',
+        minZoom: 0,
+        maxZoom: 20,
+        ext: 'png'
+      }).addTo(map);
+      return map;
+    }
+
+    var PlaceObjectsOnMap = function(map,data){
+      for(i in data){
+        //console.log(data[i]);
+        L.marker([data[i][1],data[i][0]]).bindPopup(data[i][2]+" Docks: "+data[i][3]).addTo(map);
+      }
+    }
 
     //var data = bikeArrayClean;
     var data = bikeArrayDirty;
+    var dataClean = CleanData(data);
+    var dataFiltered = FilterData(dataClean);
+    var map = CreateLeafletObjects();
+    PlaceObjectsOnMap(map,dataFiltered);
 
-    var dataFiltered = [];
-    var n =bikeArrayClean.length;
-
-    // if using dirty data
-    for(var i=0;i<n;i++){
-      var b = bikeArrayDirty[i];
-      var bClean = [];
-      for(j in b){
-        var item = parseFloat(b[j]);
-        if(item!=NaN){
-          bClean.push(item);
-        }
-      }
-      console.log(bClean);
-      if(bClean.length >3 && bClean[3]>20){ // assume correct data has the same structure as in bikeArrayClean
-        dataFiltered.push(bClean);
-      }
-    }
-
-
-    // if using clean data
-    /*
-    for(var i=0;i<n;i++){
-      var b = bikeArrayClean[i];
-      if(b[3]>20){
-        dataFiltered.push(b);
-      }
-    }
-    */
-
-    /* =====================
-
-    End code to filter data
-
-    ===================== */
-
-    var map = L.map('map', {
-      center: [39.9522, -75.1639],
-      zoom: 14
-    });
-
-    var Stamen_TonerLite = L.tileLayer('http://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.{ext}', {
-      attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      subdomains: 'abcd',
-      minZoom: 0,
-      maxZoom: 20,
-      ext: 'png'
-    }).addTo(map);
-
-    /* =====================
-
-    Start code to add markers to map
-
-    ===================== */
-    for(i in dataFiltered){
-      console.log(dataFiltered[i]);
-      L.marker([dataFiltered[i][1],dataFiltered[i][0]]).bindPopup(dataFiltered[i][2]+" Docks: "+dataFiltered[i][3]).addTo(map);
-    }
-
-
-
-    /* =====================
-
-    End code to add markers to map
-
-    ===================== */
 
     </script>
   </body>
